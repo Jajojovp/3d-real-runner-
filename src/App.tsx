@@ -7,8 +7,8 @@ const readImage = (file: File) => new Promise<string>((resolve, reject) => { con
 export default function App() {
   const [face, setFace] = useState<string>(); const [outfit, setOutfit] = useState<string>();
   const [playing, setPlaying] = useState(false); const [score, setScore] = useState(0); const [best, setBest] = useState(() => Number(localStorage.getItem('myrunner-best') || 0));
-  const [coins, setCoins] = useState(0); const [sound, setSound] = useState(true);
-  const gameRef = useRef<HTMLDivElement>(null); const touchStart = useRef<{x:number;y:number}|null>(null);
+  const [coins, setCoins] = useState(0);
+  const touchStart = useRef<{x:number;y:number}|null>(null);
   const updateBest = useCallback((value:number) => { setScore(value); if (value > best) { setBest(value); localStorage.setItem('myrunner-best', String(value)); } }, [best]);
   const handleAction = useCallback((action:Action) => { window.dispatchEvent(new CustomEvent('runner-action', { detail: action })); }, []);
   useEffect(() => {
@@ -17,11 +17,13 @@ export default function App() {
   }, [handleAction]);
   const upload = async (event:React.ChangeEvent<HTMLInputElement>, target:'face'|'outfit') => { const file = event.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/')) return; if (file.size > 8*1024*1024) { alert('La imagen debe pesar menos de 8 MB.'); return; } const data = await readImage(file); target === 'face' ? setFace(data) : setOutfit(data); };
   const start = () => { setScore(0); setCoins(0); setPlaying(true); };
+  const onTouchStart = (event:React.TouchEvent<HTMLDivElement>) => { const touch=event.changedTouches[0]; touchStart.current={x:touch.clientX,y:touch.clientY}; };
+  const onTouchEnd = (event:React.TouchEvent<HTMLDivElement>) => { if(!touchStart.current)return; const touch=event.changedTouches[0]; const dx=touch.clientX-touchStart.current.x; const dy=touch.clientY-touchStart.current.y; touchStart.current=null; if(Math.max(Math.abs(dx),Math.abs(dy))<24)return; if(Math.abs(dx)>Math.abs(dy))handleAction(dx<0?'left':'right'); else handleAction(dy<0?'jump':'duck'); };
   return <main className="app-shell">
-    <header className="topbar"><a className="brand" href="#"><span className="brand-mark">M</span><span>MY RUNNER <b>3D</b></span></a><div className="top-actions"><span className="best-chip">🏆 Récord <b>{best.toLocaleString('es-CL')}</b></span><button className="sound-button" onClick={() => setSound(!sound)} aria-label="Alternar sonido">{sound?'♫':'♪'}</button></div></header>
+    <header className="topbar"><a className="brand" href="#"><span className="brand-mark">M</span><span>MY RUNNER <b>3D</b></span></a><div className="top-actions"><span className="best-chip">🏆 Récord <b>{best.toLocaleString('es-CL')}</b></span></div></header>
     <section className="hero">
       <div className="hero-copy"><span className="eyebrow">TU CARRERA · TUS REGLAS</span><h1>Corre a tu<br/><em>manera.</em></h1><p>Personaliza tu corredor con tus fotos, esquiva obstáculos y supera tu propio récord en una carrera infinita en 3D.</p><div className="hero-stats"><div><b>3</b><span>carriles</span></div><div><b>∞</b><span>distancia</span></div><div><b>1</b><span>protagonista: tú</span></div></div></div>
-      <div className="game-panel" ref={gameRef}>
+      <div className="game-panel" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="game-hud"><div><small>PUNTUACIÓN</small><strong>{score.toLocaleString('es-CL')}</strong></div><div className="coin-hud">🟡 <b>{coins}</b></div></div>
         <RunnerGame running={playing} face={face} outfit={outfit} onScore={updateBest} onCoin={() => setCoins(v=>v+1)} onCrash={() => setPlaying(false)} />
         {!playing && <div className="game-overlay"><div className="overlay-card"><span className="overlay-icon">{score>0?'⚡':'🏃'}</span><h2>{score>0?'¡Buena carrera!':'¿Listo para correr?'}</h2><p>{score>0?'Esquiva, recoge monedas y vuelve a intentarlo.':'Tres carriles, obstáculos y monedas. ¡No dejes que te alcancen!'}</p><button className="primary-button" onClick={start}>{score>0?'VOLVER A JUGAR':'EMPEZAR A CORRER'} <span>→</span></button><small className="key-hint">← → MOVER · ↑ SALTAR · ↓ DESLIZAR</small></div></div>}
