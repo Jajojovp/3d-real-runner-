@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type TouchEvent } from 'react';
 import RunnerGame from './game/RunnerGame';
 
 type Action = 'left' | 'right' | 'jump' | 'duck';
@@ -15,9 +15,9 @@ export default function App() {
     const onKey = (event:KeyboardEvent) => { const map:Record<string,Action> = {ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'jump',w:'jump',' ':'jump',ArrowDown:'duck',s:'duck'}; const action = map[event.key]; if (action) { event.preventDefault(); handleAction(action); } };
     window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
   }, [handleAction]);
-  const upload = async (event:React.ChangeEvent<HTMLInputElement>, target:'face'|'outfit') => { const file = event.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/')) return; if (file.size > 8*1024*1024) { alert('La imagen debe pesar menos de 8 MB.'); return; } const data = await readImage(file); target === 'face' ? setFace(data) : setOutfit(data); };
+  const upload = async (event:ChangeEvent<HTMLInputElement>, target:'face'|'outfit') => { const file = event.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/')) return; if (file.size > 8*1024*1024) { alert('La imagen debe pesar menos de 8 MB.'); return; } const data = await readImage(file); target === 'face' ? setFace(data) : setOutfit(data); };
   const start = () => { setScore(0); setCoins(0); setPlaying(true); };
-  const onTouchStart = (event:React.TouchEvent<HTMLDivElement>) => { const touch=event.changedTouches[0]; touchStart.current={x:touch.clientX,y:touch.clientY}; };
+  const onTouchStart = (event:TouchEvent<HTMLDivElement>) => { const touch=event.changedTouches[0]; touchStart.current={x:touch.clientX,y:touch.clientY}; };
   const onTouchEnd = (event:React.TouchEvent<HTMLDivElement>) => { if(!touchStart.current)return; const touch=event.changedTouches[0]; const dx=touch.clientX-touchStart.current.x; const dy=touch.clientY-touchStart.current.y; touchStart.current=null; if(Math.max(Math.abs(dx),Math.abs(dy))<24)return; if(Math.abs(dx)>Math.abs(dy))handleAction(dx<0?'left':'right'); else handleAction(dy<0?'jump':'duck'); };
   return <main className="app-shell">
     <header className="topbar"><a className="brand" href="#"><span className="brand-mark">M</span><span>MY RUNNER <b>3D</b></span></a><div className="top-actions"><span className="best-chip">🏆 Récord <b>{best.toLocaleString('es-CL')}</b></span></div></header>
