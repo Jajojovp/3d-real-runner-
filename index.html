@@ -1,88 +1,11 @@
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#101827"><meta name="description" content="MY RUNNER 3D — endless runner 3D con personaje personalizable.">
-<title>MY RUNNER 3D</title>
-<style>
-:root{color-scheme:dark;--bg:#101827;--panel:rgba(13,23,39,.88);--line:rgba(255,255,255,.13);--cyan:#5eead4;--gold:#fbbf24;--muted:#a9b7c9}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#f8fafc}#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:fixed;inset:0;pointer-events:none;padding:clamp(12px,3vw,26px);display:flex;flex-direction:column;justify-content:space-between}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.brand,.stat,.panel,.control{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(12px);box-shadow:0 12px 40px #0003}.brand{padding:10px 14px;border-radius:15px}.brand strong{display:block;letter-spacing:.13em;font-size:13px}.brand small{color:var(--muted);font-size:10px;letter-spacing:.16em}.stats{display:flex;gap:8px}.stat{min-width:76px;padding:8px 12px;border-radius:13px;text-align:center}.stat span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.12em}.stat b{font-size:20px;font-variant-numeric:tabular-nums}.bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.hint{color:#dbeafe;text-shadow:0 2px 8px #000;font-size:12px;max-width:60%;line-height:1.5}.actions{display:flex;gap:8px;pointer-events:auto}.control{border-radius:12px;padding:11px 14px;color:white;font-weight:700;cursor:pointer}.control:active{transform:scale(.96)}.overlay{position:fixed;inset:0;display:grid;place-items:center;padding:18px;background:linear-gradient(135deg,#07111dcc,#10243dcc);z-index:5}.panel{width:min(520px,100%);padding:clamp(20px,5vw,34px);border-radius:24px;pointer-events:auto}.panel h1{font-size:clamp(28px,7vw,44px);line-height:1;margin:0 0 10px;letter-spacing:-.05em}.panel h1 em{font-style:normal;color:var(--cyan)}.panel p{color:var(--muted);line-height:1.55;margin:10px 0 20px}.primary{width:100%;border:0;border-radius:14px;padding:15px;background:linear-gradient(100deg,#14b8a6,#0ea5e9);color:#04151c;font-size:15px;font-weight:900;cursor:pointer}.secondary{border:1px solid var(--line);background:#ffffff0c;color:#e2e8f0;border-radius:12px;padding:10px 12px;cursor:pointer}.customize{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.upload{border:1px dashed #ffffff40;border-radius:13px;padding:12px;font-size:12px;color:var(--muted)}.upload b{display:block;color:white;margin-bottom:7px}.upload input{display:block;width:100%;font-size:11px;margin-top:7px}.note{font-size:11px!important;margin:10px 0!important}.hidden{display:none!important}.touch-controls{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:none;gap:12px;pointer-events:auto}.touch-controls button{width:54px;height:54px;border-radius:50%;border:1px solid #ffffff55;background:#0b172dcc;color:white;font-size:20px;backdrop-filter:blur(10px)}.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);padding:9px 14px;border-radius:99px;background:#0b172dee;border:1px solid var(--line);font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none}.toast.show{opacity:1}@media(max-width:650px){.stats{gap:5px}.stat{min-width:58px;padding:7px 8px}.stat b{font-size:17px}.brand{padding:8px 10px}.brand strong{font-size:11px}.bottom{align-items:flex-end}.hint{max-width:48%;font-size:10px}.actions .control{padding:9px 10px;font-size:12px}.touch-controls{display:flex}.customize{grid-template-columns:1fr}.panel{max-height:92vh;overflow:auto}}
-</style>
-</head>
-<body>
-<div id="game"></div>
-<div class="hud" id="hud">
- <div class="top"><div class="brand"><strong>MY RUNNER <span style="color:#5eead4">3D</span></strong><small>ENDLESS RUN EXPERIENCE</small></div><div class="stats"><div class="stat"><span>Puntos</span><b id="score">0</b></div><div class="stat"><span>Monedas</span><b id="coins">0</b></div><div class="stat"><span>Récord</span><b id="best">0</b></div></div></div>
- <div class="bottom"><div class="hint">← → cambiar carril · ↑ saltar · ↓ deslizar<br>En móvil: desliza o usa los controles</div><div class="actions"><button class="control" id="pauseBtn">Ⅱ Pausa</button></div></div>
-</div>
-<div class="touch-controls" id="touchControls"><button data-action="left">←</button><button data-action="jump">↑</button><button data-action="slide">↓</button><button data-action="right">→</button></div>
-<div class="overlay" id="startOverlay"><section class="panel"><h1>MY RUNNER <em>3D</em></h1><p>Corre, esquiva obstáculos, recoge monedas y supera tu propio récord. Personaliza el aspecto del corredor con tus imágenes.</p><div class="customize"><label class="upload"><b>Foto del rostro</b>Textura frontal del personaje<input id="faceInput" type="file" accept="image/*"></label><label class="upload"><b>Foto de vestimenta</b>Referencia visual para el torso<input id="outfitInput" type="file" accept="image/*"></label></div><p class="note">Las imágenes se procesan localmente en tu navegador y no se envían a ningún servidor. La personalización aplica texturas 2D sobre el modelo 3D; no genera un modelo humano 3D real mediante IA.</p><button class="primary" id="startBtn">COMENZAR A CORRER</button></section></div>
-<div class="overlay hidden" id="overOverlay"><section class="panel"><h1 id="overTitle">¡Fin del recorrido!</h1><p id="overSummary">Tu puntuación: 0</p><button class="primary" id="restartBtn">VOLVER A JUGAR</button></section></div>
-<div class="toast" id="toast"></div>
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
-const $=id=>document.getElementById(id);
-const gameEl=$('game');
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x8dc6d8);scene.fog=new THREE.Fog(0x8dc6d8,28,105);
-const camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,180);camera.position.set(0,5.2,10.5);camera.lookAt(0,1.2,-5);
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;gameEl.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xe8f7ff,0x52616b,2.1));const sun=new THREE.DirectionalLight(0xfff2d7,2.3);sun.position.set(-5,12,7);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
-const mat=(color,roughness=.75)=>new THREE.MeshStandardMaterial({color,roughness});
-const roadMat=mat(0x263342),lineMat=mat(0x93a4b8),grassMat=mat(0x3c8768),railMat=mat(0x506b7b),goldMat=new THREE.MeshStandardMaterial({color:0xffc83d,metalness:.72,roughness:.25});
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(16,180),grassMat);floor.rotation.x=-Math.PI/2;floor.position.set(0,-.12,-45);floor.receiveShadow=true;scene.add(floor);
-const road=new THREE.Mesh(new THREE.PlaneGeometry(9,180),roadMat);road.rotation.x=-Math.PI/2;road.position.set(0,-.08,-45);road.receiveShadow=true;scene.add(road);
-for(let x of [-1.5,1.5]){const stripe=new THREE.Mesh(new THREE.PlaneGeometry(.055,180),lineMat);stripe.rotation.x=-Math.PI/2;stripe.position.set(x,-.055,-45);scene.add(stripe)}
-for(let x of [-4.65,4.65]){const rail=new THREE.Mesh(new THREE.BoxGeometry(.18,.5,180),railMat);rail.position.set(x,.12,-45);rail.castShadow=true;scene.add(rail)}
-// Repeated roadside scenery
-const scenery=[];for(let i=0;i<34;i++){for(let side of [-1,1]){const g=new THREE.Group();const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,1.6,6),mat(0x795438));trunk.position.y=.8;trunk.castShadow=true;g.add(trunk);const crown=new THREE.Mesh(new THREE.ConeGeometry(.9,2.4,7),mat(i%2?0x2f7659:0x43865d));crown.position.y=2.5;crown.castShadow=true;g.add(crown);g.position.set(side*(6.3+Math.random()*3),0,-i*5-5);scene.add(g);scenery.push(g)}}
-const player=new THREE.Group();scene.add(player);
-const skin=mat(0xd99b73),shirt=mat(0x14b8a6),pants=mat(0x233b64),shoe=mat(0x17212e),dark=mat(0x17202c);
-function box(parent,w,h,d,material,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
-const torso=box(player,.68,.9,.38,shirt,0,1.35,0);torso.name='torso';
-const head=new THREE.Mesh(new THREE.SphereGeometry(.29,20,16),skin);head.position.set(0,2.02,0);head.castShadow=true;player.add(head);
-const hair=new THREE.Mesh(new THREE.SphereGeometry(.3,16,10,0,Math.PI*2,0,Math.PI*.48),dark);hair.position.set(0,2.12,-.015);player.add(hair);
-const facePlane=new THREE.Mesh(new THREE.PlaneGeometry(.37,.38),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}));facePlane.position.set(0,2.02,.285);player.add(facePlane);
-const outfitPlane=new THREE.Mesh(new THREE.PlaneGeometry(.61,.72),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}));outfitPlane.position.set(0,1.36,.198);player.add(outfitPlane);
-const armL=box(player,.19,.72,.2,shirt,-.48,1.37,0),armR=box(player,.19,.72,.2,shirt,.48,1.37,0);
-const legL=box(player,.25,.7,.27,pants,-.2,.55,0),legR=box(player,.25,.7,.27,pants,.2,.55,0);
-const footL=box(player,.28,.16,.42,shoe,-.2,.16,.08),footR=box(player,.28,.16,.42,shoe,.2,.16,.08);
-player.position.set(0,0,3.5);
-let faceTexture=null,outfitTexture=null;
-function loadTexture(file,callback){const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{const t=new THREE.Texture(img);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;callback(t);URL.revokeObjectURL(url)};img.onerror=()=>{URL.revokeObjectURL(url);toast('No se pudo cargar la imagen')};img.src=url}
-$('faceInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;loadTexture(f,t=>{if(faceTexture)faceTexture.dispose();faceTexture=t;facePlane.material.map=t;facePlane.material.needsUpdate=true;toast('Textura de rostro aplicada')})});
-$('outfitInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;loadTexture(f,t=>{if(outfitTexture)outfitTexture.dispose();outfitTexture=t;outfitPlane.material.map=t;outfitPlane.material.needsUpdate=true;toast('Textura de vestimenta aplicada')})});
-const laneX=[-3,0,3];let lane=1,mode='ready',score=0,coins=0,best=Number(localStorage.getItem('myRunnerBest')||0),speed=17,elapsed=0,spawnTimer=0,coinTimer=0,runTime=0,slideTime=0,jumpVelocity=0;
-$('best').textContent=best;
-const obstacles=[],collectibles=[];
-function makeObstacle(type,laneIndex,z){const group=new THREE.Group();let mesh;if(type==='barrier'){mesh=new THREE.Mesh(new THREE.BoxGeometry(1.55,1.25,.8),mat(0xf97316));mesh.position.y=.63;group.add(mesh);const band=box(group,1.58,.16,.84,mat(0xffe5b4),0,.82,0)}else if(type==='arch'){const left=box(group,.25,1.35,.3,mat(0xef4444),-.62,.68,0);const right=box(group,.25,1.35,.3,mat(0xef4444),.62,.68,0);box(group,1.5,.2,.35,mat(0xef4444),0,1.35,0);mesh=group}else{mesh=new THREE.Mesh(new THREE.BoxGeometry(1.7,.45,.9),mat(0x8b5cf6));mesh.position.y=.23;group.add(mesh)}group.position.set(laneX[laneIndex],0,z);group.userData={type,lane:laneIndex};scene.add(group);obstacles.push(group)}
-function makeCoin(laneIndex,z){const c=new THREE.Mesh(new THREE.TorusGeometry(.28,.09,8,18),goldMat);c.position.set(laneX[laneIndex],1.25,z);c.rotation.y=Math.PI/2;c.castShadow=true;scene.add(c);collectibles.push(c)}
-function clearObjects(arr){for(const o of arr)scene.remove(o);arr.length=0}
-function reset(){clearObjects(obstacles);clearObjects(collectibles);lane=1;player.position.set(0,0,3.5);player.rotation.set(0,0,0);score=0;coins=0;speed=17;elapsed=0;spawnTimer=.7;coinTimer=.5;runTime=0;slideTime=0;jumpVelocity=0;updateHud()}
-function updateHud(){$('score').textContent=Math.floor(score).toLocaleString('es-CL');$('coins').textContent=coins;$('best').textContent=best}
-function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),1700)}
-function move(dir){if(mode!=='running')return;lane=THREE.MathUtils.clamp(lane+dir,0,2)}
-function jump(){if(mode==='running'&&player.position.y<.03&&slideTime<=0){jumpVelocity=8.5}}
-function slide(){if(mode==='running'&&player.position.y<.1)slideTime=.72}
-function action(a){if(a==='left')move(-1);if(a==='right')move(1);if(a==='jump')jump();if(a==='slide')slide()}
-addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','a','d','w','s'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft'||e.key==='a')action('left');if(e.key==='ArrowRight'||e.key==='d')action('right');if(e.key==='ArrowUp'||e.key==='w'||e.key===' ')action('jump');if(e.key==='ArrowDown'||e.key==='s')action('slide');if(e.key==='Escape'||e.key==='p')togglePause()});
-$('touchControls').addEventListener('click',e=>{const b=e.target.closest('button');if(b)action(b.dataset.action)});
-let touchStart=null;renderer.domElement.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touchStart={x:t.clientX,y:t.clientY}},{passive:true});renderer.domElement.addEventListener('touchend',e=>{if(!touchStart)return;const t=e.changedTouches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.max(Math.abs(dx),Math.abs(dy))>24){if(Math.abs(dx)>Math.abs(dy))action(dx>0?'right':'left');else action(dy<0?'jump':'slide')}touchStart=null},{passive:true});
-function togglePause(){if(mode==='running'){mode='paused';$('pauseBtn').textContent='▶ Seguir';toast('Juego en pausa')}else if(mode==='paused'){mode='running';$('pauseBtn').textContent='Ⅱ Pausa'}}
-$('pauseBtn').addEventListener('click',togglePause);
-function start(){reset();mode='running';$('startOverlay').classList.add('hidden');$('overOverlay').classList.add('hidden');$('pauseBtn').textContent='Ⅱ Pausa'}
-$('startBtn').addEventListener('click',start);$('restartBtn').addEventListener('click',start);
-function endGame(){mode='over';best=Math.max(best,Math.floor(score));localStorage.setItem('myRunnerBest',String(best));updateHud();$('overSummary').textContent='Puntuación: '+Math.floor(score).toLocaleString('es-CL')+' · Monedas: '+coins+' · Récord: '+best;$('overOverlay').classList.remove('hidden')}
-const clock=new THREE.Clock();
-function update(dt){if(mode!=='running')return;elapsed+=dt;runTime+=dt;speed=Math.min(31,17+elapsed*.22);score+=dt*speed*.55;spawnTimer-=dt;coinTimer-=dt;
-if(spawnTimer<=0){const l=Math.floor(Math.random()*3),types=['barrier','arch','low'];makeObstacle(types[Math.floor(Math.random()*types.length)],l,-85);spawnTimer=Math.max(.62,1.28-(speed-17)*.025)+Math.random()*.28}
-if(coinTimer<=0){const l=Math.floor(Math.random()*3);for(let i=0;i<5;i++)makeCoin(l,-45-i*2.5);coinTimer=2.5+Math.random()*1.6}
-const targetX=laneX[lane];player.position.x=THREE.MathUtils.damp(player.position.x,targetX,13,dt);player.rotation.z=THREE.MathUtils.damp(player.rotation.z,(targetX-player.position.x)*-.055,10,dt);
-if(jumpVelocity!==0||player.position.y>0){player.position.y+=jumpVelocity*dt;jumpVelocity-=22*dt;if(player.position.y<0){player.position.y=0;jumpVelocity=0}}
-slideTime=Math.max(0,slideTime-dt);const sliding=slideTime>0;torso.scale.y=sliding?.58:1;head.position.y=sliding?1.45:2.02;hair.position.y=sliding?1.55:2.12;facePlane.position.y=sliding?1.45:2.02;armL.rotation.z=sliding?-.7:Math.sin(runTime*12)*.25;armR.rotation.z=sliding?.7:-Math.sin(runTime*12)*.25;legL.rotation.x=Math.sin(runTime*13)*.55;legR.rotation.x=-Math.sin(runTime*13)*.55;
-for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.position.z+=speed*dt;if(o.position.z>8){scene.remove(o);obstacles.splice(i,1);continue}if(Math.abs(o.position.z-player.position.z)<.72&&Math.abs(o.position.x-player.position.x)<1.05){const type=o.userData.type;const avoided=type==='barrier'?player.position.y>1.05:type==='arch'?sliding:player.position.y>1.0||sliding;if(!avoided){endGame();return}}}
-for(let i=collectibles.length-1;i>=0;i--){const c=collectibles[i];c.position.z+=speed*dt;c.rotation.z+=dt*4;if(c.position.z>8){scene.remove(c);collectibles.splice(i,1);continue}if(Math.abs(c.position.z-player.position.z)<.75&&Math.abs(c.position.x-player.position.x)<.8){coins++;score+=25;scene.remove(c);collectibles.splice(i,1);updateHud()}}
-for(const s of scenery){s.position.z+=speed*dt*.72;if(s.position.z>12)s.position.z-=170}
-updateHud()}
-function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);update(dt);renderer.render(scene,camera)}animate();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2))});
-</script>
-</body></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#08121d" />
+    <meta name="description" content="MY RUNNER 3D: crea tu corredor y juega una carrera infinita en 3D." />
+    <title>MY RUNNER 3D</title>
+  </head>
+  <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
+</html>
