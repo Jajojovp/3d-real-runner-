@@ -8,6 +8,7 @@ const DESPAWN_DISTANCE := 9.0
 var runner: CharacterBody3D
 var camera: Camera3D
 var world_root: Node3D
+var floor_body: StaticBody3D
 var spawn_timer := 0.0
 var spawn_interval := 1.25
 var speed := 18.0
@@ -63,6 +64,15 @@ func _build_world() -> void:
 	world_root = Node3D.new()
 	world_root.name = "World"
 	add_child(world_root)
+	floor_body = StaticBody3D.new()
+	floor_body.name = "TrackCollision"
+	floor_body.position = Vector3(0, -0.25, -65)
+	var floor_shape := CollisionShape3D.new()
+	var floor_box := BoxShape3D.new()
+	floor_box.size = Vector3(9.2, 0.5, 150)
+	floor_shape.shape = floor_box
+	floor_body.add_child(floor_shape)
+	world_root.add_child(floor_body)
 	_make_box(world_root, Vector3(0, -0.25, -65), Vector3(9.2, 0.5, 150), Color(0.12, 0.16, 0.18))
 	for lane_mark in [-1.3, 1.3]:
 		for i in range(30):
@@ -129,7 +139,7 @@ func _build_hud() -> void:
 	start_button.set_anchors_preset(Control.PRESET_CENTER)
 	start_button.position = Vector2(-90, 10)
 	start_button.size = Vector2(180, 54)
-	start_button.pressed.connect(_start_game)
+	start_button.pressed.connect(_on_start_pressed)
 	hud.add_child(start_button)
 
 	pause_button = Button.new()
@@ -179,6 +189,12 @@ func _material(color: Color, emission := 0.0) -> StandardMaterial3D:
 		mat.emission = color
 		mat.emission_energy_multiplier = emission
 	return mat
+
+func _on_start_pressed() -> void:
+	if game_state == "paused":
+		_set_state("playing")
+	else:
+		_start_game()
 
 func _start_game() -> void:
 	for entity in entities:
