@@ -35,7 +35,9 @@ var swipe_origin := Vector2.ZERO
 
 func _ready() -> void:
 	rng.randomize()
-	best_score = int(ConfigFile.new().get_value("records", "best", 0))
+	var saved_records := ConfigFile.new()
+	saved_records.load("user://records.cfg")
+	best_score = int(saved_records.get_value("records", "best", 0))
 	_build_world()
 	_build_runner()
 	_build_camera()
@@ -260,6 +262,11 @@ func _process(delta: float) -> void:
 			entities.erase(entity)
 			continue
 		entity.position.z += speed * delta
+		if entity.name == "Coin":
+			var coin_visual := entity.get_child(0) as Node3D
+			coin_visual.rotate_y(delta * 3.5)
+			if magnet_time > 0.0 and entity.global_position.distance_to(runner.global_position + Vector3.UP) < 9.0:
+				entity.global_position = entity.global_position.move_toward(runner.global_position + Vector3.UP, delta * 16.0)
 		if entity.position.z > DESPAWN_DISTANCE:
 			entities.erase(entity)
 			entity.queue_free()
